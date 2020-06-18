@@ -120,10 +120,10 @@ function main() {
 	//ebi.moveが0より大きい場合は、4pxずつ移動（いどう）を続ける
 	if (ebi.move > 0) {
 		ebi.move -= 4;
-		if ( push_key === 'left' ) ebi.x -= 4;
-		if ( push_key === 'up' ) ebi.y -= 4;
-		if ( push_key === 'right' ) ebi.x += 4;
-		if ( push_key === 'down' ) ebi.y += 4;
+		if ( push_key === 'left' & ebi.x > 0) ebi.x -= 4;
+		if ( push_key === 'up' & ebi.y > 0) ebi.y -= 4;
+		if ( push_key === 'right' & ebi.x < 320) ebi.x += 4;
+		if ( push_key === 'down' & ebi.y < 320) ebi.y += 4;
 	}
 
 	//りこちゃんの位置（いち）を決める
