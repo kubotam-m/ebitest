@@ -98,20 +98,20 @@ function main() {
 	addEventListener("keyup", keyupfunc, false);
 
 	//方向キーが押されている場合（ばあい）は、りこちゃんが移動する
-	if ( ebi.move === 0 ) {
-		if ( key.left === true ) {
+	if (ebi.move === 0) {
+		if (key.left === true) {
 			ebi.move = 32;
 			push_key = 'left';
 		}
-		if ( key.up === true ) {
+		if (key.up === true) {
 			ebi.move = 32;
 			push_key = 'up';
 		}
-		if ( key.right === true ) {
+		if (key.right === true) {
 			ebi.move = 32;
 			push_key = 'right';
 		}
-		if ( key.down === true ) {
+		if (key.down === true) {
 			ebi.move = 32;
 			push_key = 'down';
 		}
@@ -120,15 +120,15 @@ function main() {
 	//ebi.moveが0より大きい場合は、4pxずつ移動（いどう）を続ける
 	if (ebi.move > 0) {
 		ebi.move -= 4;
-		if ( push_key === 'left' & ebi.x > 0) ebi.x -= 4;
-		if ( push_key === 'up' & ebi.y > 0) ebi.y -= 4;
-		if ( push_key === 'right' & ebi.x < 320) ebi.x += 4;
-		if ( push_key === 'down' & ebi.y < 320) ebi.y += 4;
+		if (push_key === 'left' & ebi.x > 0) ebi.x -= 4;
+		if (push_key === 'up' & ebi.y > 0) ebi.y -= 4;
+		if (push_key === 'right' & ebi.x < 320) ebi.x += 4;
+		if (push_key === 'down' & ebi.y < 320) ebi.y += 4;
 	}
 
 	//りこちゃんの位置（いち）を決める
-	document.getElementById( 'ebi' ).style.top = ebi.y + "px";
-	document.getElementById( 'ebi' ).style.left = ebi.x + "px";
+	document.getElementById('ebi').style.top = ebi.y + "px";
+	document.getElementById('ebi').style.left = ebi.x + "px";
 
 	//main関数（かんすう）、つまり自分自身の関数を呼び出すことでループさせる。
 	requestAnimationFrame(main);
@@ -136,20 +136,20 @@ function main() {
 requestAnimationFrame(main);
 
 //キーボードが押されたときに呼び出される関数（かんすう）
-function keydownfunc( event ) {
+function keydownfunc(event) {
 	var key_code = event.keyCode;
-	if( key_code === 37 ) key.left = true;
-	if( key_code === 38 ) key.up = true;
-	if( key_code === 39 ) key.right = true;
-	if( key_code === 40 ) key.down = true;
+	if (key_code === 37) key.left = true;
+	if (key_code === 38) key.up = true;
+	if (key_code === 39) key.right = true;
+	if (key_code === 40) key.down = true;
 	event.preventDefault();
 }
 
 //キーボードが放（はな）されたときに呼び出される関数
-function keyupfunc( event ) {
+function keyupfunc(event) {
 	var key_code = event.keyCode;
-	if( key_code === 37 ) key.left = false;
-	if( key_code === 38 ) key.up = false;
-	if( key_code === 39 ) key.right = false;
-	if( key_code === 40 ) key.down = false;
+	if (key_code === 37) key.left = false;
+	if (key_code === 38) key.up = false;
+	if (key_code === 39) key.right = false;
+	if (key_code === 40) key.down = false;
 }
