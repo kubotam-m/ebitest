@@ -31,9 +31,11 @@ class Bird {
 	}
 }
 
+
 const max_bird_n = 6;
 var bird = new Bird();
 var bird_l = [bird];
+var iter = 1;
 
 const dir = ["right", "left", "up", "down"]
 //キーボードのオブジェクトを作成
@@ -46,7 +48,6 @@ key.push = '';
 
 //鳥が1ます動くまでgrid_size/bird.speedだけのイテレーションが必要
 
-var iter = 1;
 //メインループ
 function main() {
 	//塗（ぬ）りつぶす色を指定（してい）
@@ -91,9 +92,10 @@ function main() {
 	}
 
 	var moved_grid = iter / (grid_size / bird.speed);
-	if ((moved_grid % 10) == 0) {
+	if ((moved_grid % 20) == 0) {
 		if (bird_l.length < max_bird_n) {
-			bird_l.push(new Bird());
+			var last_bird = bird_l[bird_l.length - 1];
+			bird_l.push(new Bird(x = last_bird.x, y = last_bird.y));
 		}
 	}
 
@@ -105,7 +107,7 @@ function main() {
 		if (bird_l[i].move === 0) {
 			//鳥の動く方向を決める
 			var bird_dir_candidate = dir;
-			if (bird_l[i].x <= grid_size * (bird_l[i].stepsize - 1)) {
+			if (bird_l[i].x < grid_size * bird_l[i].stepsize) {
 				bird_dir_candidate =
 					bird_dir_candidate.filter(n => n !== "left");
 			}
@@ -113,7 +115,7 @@ function main() {
 				bird_dir_candidate =
 					bird_dir_candidate.filter(n => n !== "right");
 			}
-			if (bird_l[i].y <= grid_size * (bird_l[i].stepsize - 1)) {
+			if (bird_l[i].y < grid_size * bird_l[i].stepsize) {
 				bird_dir_candidate =
 					bird_dir_candidate.filter(n => n !== "up");
 			}
@@ -142,6 +144,8 @@ function main() {
 			ctx.textBaseline = "middle";
 			ctx.font = "bold 60px Arial";
 			ctx.fillText("GameOver", canvas.width / 2, canvas.height / 2);
+			add_retry_button();
+			break;
 		}
 	}
 	if (collided === false) {
@@ -183,3 +187,42 @@ function collision_happen(ebi_x, ebi_y, bird_x, bird_y) {
 	}
 	return ebi_x_overlap & ebi_y_overlap
 }
+
+//Function to get the mouse position
+function getMousePos(canvas, event) {
+	var rect = canvas.getBoundingClientRect();
+	return {
+		x: event.clientX - rect.left,
+		y: event.clientY - rect.top
+	};
+}
+var rect = { x: canvas.width * 0.3, y: canvas.height * 0.6, width: canvas.width * 0.4, height: canvas.height * 0.2 };
+function add_retry_button() {
+	ctx.fillStyle = "white";
+	ctx.fillRect(rect.x, rect.y, rect.width, rect.height);
+	ctx.strokeStyle = "lightblue";
+	ctx.lineWidth = 10;
+	ctx.strokeRect(rect.x, rect.y, rect.width, rect.height);
+	ctx.fillStyle = "lightblue";
+	ctx.textAlign = "center";
+	ctx.textBaseline = "middle";
+	ctx.font = "bold 20px Arial";
+	ctx.fillText("Retry?", rect.x + rect.width / 2, rect.y + rect.height / 2);
+}
+
+function retry() {
+	bird = new Bird();
+	bird_l = [bird];
+	iter = 1;
+	main();
+}
+function isInside(pos, rect) {
+	return pos.x > rect.x && pos.x < rect.x + rect.width && pos.y < rect.y + rect.height && pos.y > rect.y
+}
+canvas.addEventListener('click', function (evt) {
+	var mousePos = getMousePos(canvas, evt);
+
+	if (isInside(mousePos, rect)) {
+		retry();
+	}
+}, false);
