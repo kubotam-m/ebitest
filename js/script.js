@@ -1,3 +1,5 @@
+var bird_collision_judge = false
+
 //canvasの設定（せってい）
 const grid_size = 32;
 
@@ -39,15 +41,16 @@ class Bird {
 
 
 class FoodMap {
-	constructor(initial_food_n = 5, min_food_n = 5) {
+	constructor(tmp_iter, initial_food_n = 5, min_food_n_to_keep = 3, max_food_n = 10) {
 		this.map = []
 		for (var i = 0; i < grid_num; i++) this.map.push(Array(grid_num).fill(0));
 		this.food_l = []
-		for (var i = 0; i < initial_food_n; i++) this.add_food()
-		this.min_food_n = min_food_n
+		for (var i = 0; i < initial_food_n; i++) this.add_food(tmp_iter)
+		this.min_food_n_to_keep = min_food_n_to_keep
+		this.max_food_n = max_food_n
 	}
 
-	select_grid() {
+	_select_grid() {
 		var x_cand, y_cand;
 		do {
 			x_cand = Math.floor(Math.random() * grid_num);
@@ -56,41 +59,87 @@ class FoodMap {
 		return [x_cand, y_cand]
 	}
 
-	add_food() {
-		var grid_coordinate = this.select_grid()
+	get_food_n() {
+		return this.food_l.length
+	}
+
+	add_food(tmp_iter = iter) {
+		if (this.get_food_n() >= this.max_food_n) return;
+		var grid_coordinate = this._select_grid()
 		var x = grid_coordinate[0]
 		var y = grid_coordinate[1]
 		this.map[x][y] = 1
-		this.food_l.push(new Food(x, y, iter))
+		this.food_l.push(new Food(x, y, tmp_iter))
 	}
 
-	del_specified_food(x_grid, y_grid) {
-		this.map[x_grid][y_grid] = 0
+	_search_food_l_index_from_map_grid(x_grid, y_grid) {
 		for (var i = 0; i < this.food_l.length; i++) {
 			if (this.food_l[i].x_grid === x_grid && this.food_l[i].y_grid === y_grid) {
-				this.food_l = this.food_l.splice(i, 1)
-				break
+				return i
+			}
+		}
+		console.log("not found")
+		return -1
+	}
+
+	_del_specified_food(x_grid, y_grid) {
+		this.map[x_grid][y_grid] = 0
+		var food_l_index = this._search_food_l_index_from_map_grid(x_grid, y_grid);
+		if (food_l_index === -1) {	//no food in (x_grid, y_grid)
+			return 1
+		} else {
+			this.food_l.splice(food_l_index, 1)
+			return 0
+		}
+	}
+
+
+	_got_food_index(ebi) {
+		var gotten_food = []
+		for (var i = 0; i < this.food_l.length; i++) {
+			if (collision_happen(this.food_l[i].x, this.food_l[i].y, ebi.x, ebi.y)) {
+				gotten_food.push(i)
+			}
+		}
+		return gotten_food;
+	}
+
+	get_food_iter(ebi) {
+		var got_food_index = this._got_food_index(ebi)
+		for (var i = 0; i < got_food_index.length; i++) {
+			this._del_specified_food(
+				this.food_l[got_food_index[i]].x_grid,
+				this.food_l[got_food_index[i]].y_grid
+			)
+		}
+	}
+
+	del_outdated_food(tmp_iter = iter) {
+		if (this.food_l.length <= this.min_food_n_to_keep) {	//you can't delete food anymore
+			return
+		}
+		var i = 0;
+		for (var i = 0; i < this.food_l.length; i++) {
+			if (this.food_l[i].min_life_iter < tmp_iter) {
+				this._del_specified_food(this.food_l[i].x_grid, this.food_l[i].y_grid);
+				i--;
 			}
 		}
 		return
 	}
 
-	del_food(tmp_iter = iter) {
-		if (this.food_l.length <= this.min_food_n) {	//you can't delete food anymore
-			return
-		}
-		for (var i = 0; i < this.food_l.length; i++) {
-			if (this.food_l[i].min_life_iter < tmp_iter) {
-				this.del_specified_food(this.food_l[i].x_grid, this.food_l[i].y_grid)
-				break
+	maintain_min_food_num() {
+		//foodの数が足りなかった場合に追加
+		if (this.get_food_n() < this.min_food_n_to_keep) {
+			while (this.get_food_n() < this.min_food_n_to_keep) {
+				this.add_food()
 			}
 		}
-		return
 	}
 }
 
 class Food {
-	constructor(x_grid, y_grid, tmp_iter, min_lifespan_iter = (100 * grid_size) / ebi.speed) {
+	constructor(x_grid, y_grid, tmp_iter, min_lifespan_iter = (50 * grid_size) / ebi.speed) {
 		var img_list = ["img/plankton_1.png", "img/plankton_2.png"];
 		this.x = x_grid * grid_size;
 		this.y = y_grid * grid_size;
@@ -112,9 +161,8 @@ for (var i = 0; i < first_bird_n; i++) {
 	bird_l.push(new Bird());
 }
 
-var map = new FoodMap();
-
 var iter = 1;
+var map = new FoodMap(iter);
 
 const dir = ["right", "left", "up", "down"]
 //キーボードのオブジェクトを作成
@@ -125,8 +173,8 @@ key.right = false;
 key.left = false;
 key.push = '';
 
-//鳥が1ます動くまでgrid_size/bird.speedだけのイテレーションが必要
-
+//えびが1ます動くまでgrid_size/ebi.speedだけのイテレーションが必要
+var feeding_freq_iter = grid_size / ebi.speed * 20
 //メインループ
 function main() {
 	//塗（ぬ）りつぶす色を指定（してい）
@@ -219,19 +267,25 @@ function main() {
 			if (bird_l[i].dir === 'down') bird_l[i].y += bird_l[i].speed;
 		}
 
-		if (collision_happen(ebi.x, ebi.y, bird_l[i].x, bird_l[i].y)) {
-			collided = true;
-			ctx.fillStyle = "red";
-			ctx.textAlign = "center";
-			ctx.textBaseline = "middle";
-			ctx.font = "bold 60px Arial";
-			ctx.fillText("GameOver", canvas.width / 2, canvas.height / 2);
-			add_retry_button();
-			break;
+		if (bird_collision_judge) {
+			if (collision_happen(ebi.x, ebi.y, bird_l[i].x, bird_l[i].y)) {
+				collided = true;
+				ctx.fillStyle = "red";
+				ctx.textAlign = "center";
+				ctx.textBaseline = "middle";
+				ctx.font = "bold 60px Arial";
+				ctx.fillText("GameOver", canvas.width / 2, canvas.height / 2);
+				add_retry_button();
+				break;
+			}
 		}
 
 	}
 	if (collided === false) {
+		map.get_food_iter(ebi);
+		map.del_outdated_food();
+		if (iter % feeding_freq_iter == 0) map.add_food()
+		map.maintain_min_food_num();
 		iter++;
 		requestAnimationFrame(main);
 	}
@@ -258,18 +312,19 @@ function keyupfunc(event) {
 	if (key_code === 40) key.down = false;
 }
 
-function collision_happen(ebi_x, ebi_y, bird_x, bird_y) {
+function collision_happen(ebi_x, ebi_y, target_x, target_y) {
 	var ebi_x_overlap = false;
-	if (ebi_x > bird_x - grid_size & bird_x + grid_size > ebi_x) {
+	if (ebi_x > target_x - grid_size & target_x + grid_size > ebi_x) {
 		ebi_x_overlap = true;
 	}
 
 	var ebi_y_overlap = false;
-	if (ebi_y > bird_y - grid_size & bird_y + grid_size > ebi_y) {
+	if (ebi_y > target_y - grid_size & target_y + grid_size > ebi_y) {
 		ebi_y_overlap = true;
 	}
 	return ebi_x_overlap & ebi_y_overlap
 }
+
 
 //Function to get the mouse position
 function getMousePos(canvas, event) {
