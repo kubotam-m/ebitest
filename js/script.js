@@ -10,12 +10,27 @@ canvas.height = grid_size * grid_num;	//canvasの縦幅（たてはば）
 //コンテキストを取得（しゅとく）
 var ctx = canvas.getContext('2d');
 var retry_button_shown = false;
+var start_button_shown = false;
 
 //情報用のcanvasの設定
 var info_canvas = document.getElementById("info_canvas")
 info_canvas.width = canvas.width
 info_canvas.height = canvas.width / 8
 info_ctx = info_canvas.getContext("2d");
+
+var rect_pos = {
+	x: canvas.width * 0.3,
+	y: canvas.height * 0.6,
+	width: canvas.width * 0.4,
+	height: canvas.height * 0.2
+};
+
+ctx.fillStyle = "rgb( 0, 0, 0 )";
+//塗（ぬ）りつぶす
+ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+info_ctx.fillStyle = "rgb( 0, 0, 0)";
+info_ctx.fillRect(0, 0, info_canvas.width, info_canvas.height);
 
 class Ebi {
 	constructor(x = 0, y = 0, move = 0, stepsize = 1, speed = 4) {
@@ -46,7 +61,7 @@ class Bird {
 
 
 class FoodMap {
-	constructor(tmp_iter, initial_food_n = 5, min_food_n_to_keep = 3, max_food_n = 10) {
+	constructor(tmp_iter, initial_food_n = 7, min_food_n_to_keep = 5, max_food_n = 13) {
 		this.map = []
 		for (var i = 0; i < grid_num; i++) this.map.push(Array(grid_num).fill(0));
 		this.food_l = []
@@ -121,9 +136,6 @@ class FoodMap {
 	}
 
 	del_outdated_food(tmp_iter = iter) {
-		if (this.food_l.length <= this.min_food_n_to_keep) {	//you can't delete food anymore
-			return
-		}
 		var i = 0;
 		for (var i = 0; i < this.food_l.length; i++) {
 			if (this.food_l[i].min_life_iter < tmp_iter) {
@@ -145,7 +157,7 @@ class FoodMap {
 }
 
 class Food {
-	constructor(x_grid, y_grid, tmp_iter, min_lifespan_iter = (50 * grid_size) / ebi.speed) {
+	constructor(x_grid, y_grid, tmp_iter, min_lifespan_iter = (80 * grid_size) / ebi.speed) {
 		var img_list = ["img/plankton_1.png", "img/plankton_2.png"];
 		this.x = x_grid * grid_size;
 		this.y = y_grid * grid_size;
@@ -170,6 +182,11 @@ for (var i = 0; i < first_bird_n; i++) {
 var iter = 1;
 var map = new FoodMap(iter);
 
+var title = new Object();
+title.img = new Image();
+title.img.src = "img/logo.png";
+
+
 const dir = ["right", "left", "up", "down"]
 //キーボードのオブジェクトを作成
 var key = new Object();
@@ -180,7 +197,7 @@ key.left = false;
 key.push = '';
 
 //えびが1ます動くまでgrid_size/ebi.speedだけのイテレーションが必要
-var feeding_freq_iter = grid_size / ebi.speed * 20
+var feeding_freq_iter = grid_size / ebi.speed * 10
 
 var score = 0;
 
@@ -195,13 +212,15 @@ function main() {
 	info_ctx.fillRect(0, 0, info_canvas.width, info_canvas.height);
 
 	//画像を表示
-	ctx.drawImage(ebi.img, ebi.x, ebi.y);
-	for (var i = 0; i < bird_l.length; i++) {
-		ctx.drawImage(bird_l[i].img, bird_l[i].x, bird_l[i].y);
-	}
+
 	for (var i = 0; i < map.food_l.length; i++) {
 		ctx.drawImage(map.food_l[i].img, map.food_l[i].x, map.food_l[i].y);
 	}
+	for (var i = 0; i < bird_l.length; i++) {
+		ctx.drawImage(bird_l[i].img, bird_l[i].x, bird_l[i].y);
+	}
+	ctx.drawImage(ebi.img, ebi.x, ebi.y);
+
 	addEventListener("keydown", keydownfunc, false);
 	addEventListener("keyup", keyupfunc, false);
 
@@ -310,8 +329,7 @@ function main() {
 		requestAnimationFrame(main);
 	}
 }
-//ページと依存（いぞん）している全てのデータが読み込まれたら、メインループ開始
-addEventListener('load', main(), false);
+addEventListener('DOMContentLoaded', show_start_page(), false);
 
 //キーボードが押されたときに呼び出される関数（かんすう）
 function keydownfunc(event) {
@@ -354,19 +372,28 @@ function getMousePos(canvas, event) {
 		y: event.clientY - rect.top
 	};
 }
-var rect = { x: canvas.width * 0.3, y: canvas.height * 0.6, width: canvas.width * 0.4, height: canvas.height * 0.2 };
+
+function show_start_page() {
+	title.img.onload = function () {
+		title.x = canvas.width / 2 - title.img.width / 2
+		title.y = canvas.height / 2 - title.img.height / 2 - 60
+		ctx.drawImage(title.img, title.x, title.y)
+	};
+	add_start_button();
+}
+
 function add_retry_button() {
 	retry_button_shown = true;
 	ctx.fillStyle = "white";
-	ctx.fillRect(rect.x, rect.y, rect.width, rect.height);
+	ctx.fillRect(rect_pos.x, rect_pos.y, rect_pos.width, rect_pos.height);
 	ctx.strokeStyle = "lightblue";
 	ctx.lineWidth = 10;
-	ctx.strokeRect(rect.x, rect.y, rect.width, rect.height);
+	ctx.strokeRect(rect_pos.x, rect_pos.y, rect_pos.width, rect_pos.height);
 	ctx.fillStyle = "lightblue";
 	ctx.textAlign = "center";
 	ctx.textBaseline = "middle";
 	ctx.font = "bold 20px Arial";
-	ctx.fillText("Retry?", rect.x + rect.width / 2, rect.y + rect.height / 2);
+	ctx.fillText("Retry?", rect_pos.x + rect_pos.width / 2, rect_pos.y + rect_pos.height / 2);
 }
 
 function retry() {
@@ -382,12 +409,38 @@ function retry() {
 	main();
 }
 
+function add_start_button() {
+	start_button_shown = true;
+	ctx.fillStyle = "white";
+	ctx.fillRect(rect_pos.x, rect_pos.y, rect_pos.width, rect_pos.height);
+	ctx.strokeStyle = "#ff867d";
+	ctx.lineWidth = 10;
+	ctx.strokeRect(rect_pos.x, rect_pos.y, rect_pos.width, rect_pos.height);
+	ctx.fillStyle = "#ff867d";
+	ctx.textAlign = "center";
+	ctx.textBaseline = "middle";
+	ctx.font = "bold 20px Arial";
+	ctx.fillText("start", rect_pos.x + rect_pos.width / 2, rect_pos.y + rect_pos.height / 2);
+}
+
+function start() {
+	start_button_shown = false;
+	main();
+}
+
 function isInside(pos, rect) {
 	return pos.x > rect.x && pos.x < rect.x + rect.width && pos.y < rect.y + rect.height && pos.y > rect.y
 }
 canvas.addEventListener('click', function (evt) {
 	var mousePos = getMousePos(canvas, evt);
-	if (retry_button_shown && isInside(mousePos, rect)) {
+	if (retry_button_shown && isInside(mousePos, rect_pos)) {
 		retry();
+	}
+}, false);
+
+canvas.addEventListener('click', function (evt) {
+	var mousePos = getMousePos(canvas, evt);
+	if (start_button_shown && isInside(mousePos, rect_pos)) {
+		start();
 	}
 }, false);
