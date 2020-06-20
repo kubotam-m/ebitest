@@ -173,7 +173,7 @@ class Food {
 var ebi = new Ebi();
 
 const max_bird_n = 9;
-const first_bird_n = 3;
+const first_bird_n = 2;
 var bird_l = [];
 for (var i = 0; i < first_bird_n; i++) {
 	bird_l.push(new Bird());
@@ -185,7 +185,6 @@ var map = new FoodMap(iter);
 var title = new Object();
 title.img = new Image();
 title.img.src = "img/logo.png";
-
 
 const dir = ["right", "left", "up", "down"]
 //キーボードのオブジェクトを作成
@@ -200,6 +199,8 @@ key.push = '';
 var feeding_freq_iter = grid_size / ebi.speed * 10
 
 var score = 0;
+
+const food_get_sound = new Audio('sound/papa1.mp3');
 
 //メインループ
 function main() {
@@ -312,7 +313,7 @@ function main() {
 				ctx.textAlign = "center";
 				ctx.textBaseline = "middle";
 				ctx.font = "bold 60px Arial";
-				ctx.fillText("GameOver", canvas.width / 2, canvas.height / 2);
+				ctx.fillText("GameOver", canvas.width / 2, canvas.height / 2 - 20);
 				add_retry_button();
 				break;
 			}
@@ -321,6 +322,10 @@ function main() {
 	}
 	if (collided === false) {
 		var got_food_index_l = map.get_food_iter(ebi);
+		if (got_food_index_l.length > 0) {
+			var sound = food_get_sound.cloneNode();
+			sound.play();
+		}
 		score += got_food_index_l.length * 100;
 		map.del_outdated_food();
 		if (iter % feeding_freq_iter == 0) map.add_food()
