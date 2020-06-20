@@ -1,8 +1,7 @@
-var bird_collision_judge = false
+var bird_collision_judge = true
 
 //canvasの設定（せってい）
 const grid_size = 32;
-
 var canvas = document.getElementById('canvas');
 //グリッドの数は奇数
 const grid_num = 11
@@ -12,8 +11,14 @@ canvas.height = grid_size * grid_num;	//canvasの縦幅（たてはば）
 var ctx = canvas.getContext('2d');
 var retry_button_shown = false;
 
+//情報用のcanvasの設定
+var info_canvas = document.getElementById("info_canvas")
+info_canvas.width = canvas.width
+info_canvas.height = canvas.width / 8
+info_ctx = info_canvas.getContext("2d");
+
 class Ebi {
-	constructor(x = 0, y = 0, move = 0, stepsize = 1, speed = 2) {
+	constructor(x = 0, y = 0, move = 0, stepsize = 1, speed = 4) {
 		this.img = new Image();
 		this.img.src = 'img/ebi.png';
 		this.x = x;
@@ -112,6 +117,7 @@ class FoodMap {
 				this.food_l[got_food_index[i]].y_grid
 			)
 		}
+		return got_food_index
 	}
 
 	del_outdated_food(tmp_iter = iter) {
@@ -175,12 +181,18 @@ key.push = '';
 
 //えびが1ます動くまでgrid_size/ebi.speedだけのイテレーションが必要
 var feeding_freq_iter = grid_size / ebi.speed * 20
+
+var score = 0;
+
 //メインループ
 function main() {
 	//塗（ぬ）りつぶす色を指定（してい）
 	ctx.fillStyle = "rgb( 0, 0, 0 )";
 	//塗（ぬ）りつぶす
 	ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+	info_ctx.fillStyle = "rgb( 100, 100, 100)";
+	info_ctx.fillRect(0, 0, info_canvas.width, info_canvas.height);
 
 	//画像を表示
 	ctx.drawImage(ebi.img, ebi.x, ebi.y);
@@ -192,6 +204,13 @@ function main() {
 	}
 	addEventListener("keydown", keydownfunc, false);
 	addEventListener("keyup", keyupfunc, false);
+
+	//scoreを表示
+	info_ctx.fillStyle = "white";
+	info_ctx.textAlign = "center";
+	info_ctx.textBaseline = "middle";
+	info_ctx.font = "bold 40px sans-serif";
+	info_ctx.fillText(score, info_canvas.width / 2, info_canvas.height / 2);
 
 	//方向キーが押されている場合（ばあい）は、りこちゃんが移動する
 	if (ebi.move === 0) {
@@ -222,7 +241,7 @@ function main() {
 	}
 
 	var moved_grid = iter / (grid_size / bird_l[0].speed);
-	if ((moved_grid % 30) == 0) {
+	if ((moved_grid % 100) == 0) {
 		if (bird_l.length < max_bird_n) {
 			var last_bird = bird_l[bird_l.length - 1];
 			bird_l.push(new Bird(x = last_bird.x, y = last_bird.y));
@@ -282,7 +301,8 @@ function main() {
 
 	}
 	if (collided === false) {
-		map.get_food_iter(ebi);
+		var got_food_index_l = map.get_food_iter(ebi);
+		score += got_food_index_l.length * 100;
 		map.del_outdated_food();
 		if (iter % feeding_freq_iter == 0) map.add_food()
 		map.maintain_min_food_num();
@@ -357,8 +377,11 @@ function retry() {
 	}
 	iter = 1;
 	ebi = new Ebi();
+	map = new FoodMap(iter);
+	score = 0
 	main();
 }
+
 function isInside(pos, rect) {
 	return pos.x > rect.x && pos.x < rect.x + rect.width && pos.y < rect.y + rect.height && pos.y > rect.y
 }
