@@ -1,21 +1,24 @@
 //canvasの設定（せってい）
 const grid_size = 32;
+
 var canvas = document.getElementById('canvas');
 //グリッドの数は奇数
-canvas.width = grid_size * 11;//canvasの横幅（よこはば）
-canvas.height = grid_size * 11;	//canvasの縦幅（たてはば）
+const grid_num = 11
+canvas.width = grid_size * grid_num;//canvasの横幅（よこはば）
+canvas.height = grid_size * grid_num;	//canvasの縦幅（たてはば）
 //コンテキストを取得（しゅとく）
 var ctx = canvas.getContext('2d');
 var retry_button_shown = false;
 
 class Ebi {
-	constructor(x = 0, y = 0, move = 0, stepsize = 1) {
+	constructor(x = 0, y = 0, move = 0, stepsize = 1, speed = 2) {
 		this.img = new Image();
 		this.img.src = 'img/ebi.png';
 		this.x = x;
 		this.y = y;
 		this.move = move;
 		this.stepsize = stepsize;
+		this.speed = speed
 	}
 }
 
@@ -34,6 +37,72 @@ class Bird {
 	}
 }
 
+
+class FoodMap {
+	constructor(initial_food_n = 5, min_food_n = 5) {
+		this.map = []
+		for (var i = 0; i < grid_num; i++) this.map.push(Array(grid_num).fill(0));
+		this.food_l = []
+		for (var i = 0; i < initial_food_n; i++) this.add_food()
+		this.min_food_n = min_food_n
+	}
+
+	select_grid() {
+		var x_cand, y_cand;
+		do {
+			x_cand = Math.floor(Math.random() * grid_num);
+			y_cand = Math.floor(Math.random() * grid_num);
+		} while (this.map[x_cand][y_cand] == 1)
+		return [x_cand, y_cand]
+	}
+
+	add_food() {
+		var grid_coordinate = this.select_grid()
+		var x = grid_coordinate[0]
+		var y = grid_coordinate[1]
+		this.map[x][y] = 1
+		this.food_l.push(new Food(x, y, iter))
+	}
+
+	del_specified_food(x_grid, y_grid) {
+		this.map[x_grid][y_grid] = 0
+		for (var i = 0; i < this.food_l.length; i++) {
+			if (this.food_l[i].x_grid === x_grid && this.food_l[i].y_grid === y_grid) {
+				this.food_l = this.food_l.splice(i, 1)
+				break
+			}
+		}
+		return
+	}
+
+	del_food(tmp_iter = iter) {
+		if (this.food_l.length <= this.min_food_n) {	//you can't delete food anymore
+			return
+		}
+		for (var i = 0; i < this.food_l.length; i++) {
+			if (this.food_l[i].min_life_iter < tmp_iter) {
+				this.del_specified_food(this.food_l[i].x_grid, this.food_l[i].y_grid)
+				break
+			}
+		}
+		return
+	}
+}
+
+class Food {
+	constructor(x_grid, y_grid, tmp_iter, min_lifespan_iter = (100 * grid_size) / ebi.speed) {
+		var img_list = ["img/plankton_1.png", "img/plankton_2.png"];
+		this.x = x_grid * grid_size;
+		this.y = y_grid * grid_size;
+		this.x_grid = x_grid;
+		this.y_grid = y_grid;
+		this.img = new Image();
+		this.img.src = img_list[Math.floor(Math.random() * img_list.length)]
+		this.min_life_iter = tmp_iter + min_lifespan_iter
+	}
+}
+
+
 var ebi = new Ebi();
 
 const max_bird_n = 9;
@@ -42,6 +111,9 @@ var bird_l = [];
 for (var i = 0; i < first_bird_n; i++) {
 	bird_l.push(new Bird());
 }
+
+var map = new FoodMap();
+
 var iter = 1;
 
 const dir = ["right", "left", "up", "down"]
@@ -67,6 +139,9 @@ function main() {
 	for (var i = 0; i < bird_l.length; i++) {
 		ctx.drawImage(bird_l[i].img, bird_l[i].x, bird_l[i].y);
 	}
+	for (var i = 0; i < map.food_l.length; i++) {
+		ctx.drawImage(map.food_l[i].img, map.food_l[i].x, map.food_l[i].y);
+	}
 	addEventListener("keydown", keydownfunc, false);
 	addEventListener("keyup", keyupfunc, false);
 
@@ -91,11 +166,11 @@ function main() {
 	}
 	//ebi.moveが0より大きい場合は、4pxずつ移動（いどう）を続ける
 	if (ebi.move > 0) {
-		ebi.move -= 4;
-		if (key.push === 'left') ebi.x -= 4;
-		if (key.push === 'up') ebi.y -= 4;
-		if (key.push === 'right') ebi.x += 4;
-		if (key.push === 'down') ebi.y += 4;
+		ebi.move -= ebi.speed;
+		if (key.push === 'left') ebi.x -= ebi.speed;
+		if (key.push === 'up') ebi.y -= ebi.speed;
+		if (key.push === 'right') ebi.x += ebi.speed;
+		if (key.push === 'down') ebi.y += ebi.speed;
 	}
 
 	var moved_grid = iter / (grid_size / bird_l[0].speed);
