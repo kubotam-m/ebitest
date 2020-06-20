@@ -12,11 +12,18 @@ var ctx = canvas.getContext('2d');
 var retry_button_shown = false;
 var start_button_shown = false;
 
-//情報用のcanvasの設定
+//スコアのcanvasの設定
+var score_canvas = document.getElementById("score_canvas")
+score_canvas.width = canvas.width;
+score_canvas.height = canvas.width / 8;
+score_ctx = score_canvas.getContext("2d");
+
+//スコアのcanvasの設定
 var info_canvas = document.getElementById("info_canvas")
-info_canvas.width = canvas.width
-info_canvas.height = canvas.width / 8
+info_canvas.width = canvas.width;
+info_canvas.height = 30;
 info_ctx = info_canvas.getContext("2d");
+info_canvas.basecolor = "rgb( 248, 248, 256)";
 
 var rect_pos = {
 	x: canvas.width * 0.3,
@@ -28,6 +35,9 @@ var rect_pos = {
 ctx.fillStyle = "rgb( 0, 0, 0 )";
 //塗（ぬ）りつぶす
 ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+score_ctx.fillStyle = "rgb( 0, 0, 0)";
+score_ctx.fillRect(0, 0, score_canvas.width, score_canvas.height);
 
 info_ctx.fillStyle = "rgb( 0, 0, 0)";
 info_ctx.fillRect(0, 0, info_canvas.width, info_canvas.height);
@@ -43,25 +53,30 @@ class Ebi {
 		this.speed = speed
 	}
 }
+var ebi = new Ebi();
 
+const refactory_iters_after_collision = grid_size / ebi.speed * 8;
 class Bird {
 	constructor(x = (canvas.width - grid_size) / 2,
 		y = (canvas.width - grid_size) / 2,
 		move = 0, speed = 2, stepsize_l = [1, 2]) {
 		this.img = new Image();
 		this.img.src = 'img/bird.png';
+		this.clearimg = new Image();
+		this.clearimg.src = 'img/bird_0.4alpha.png'
 		this.x = x;
 		this.y = y;
 		this.move = move;
 		this.speed = speed;
 		this.stepsize_l = stepsize_l;
 		this.dir;
+		this.last_collision_iter = -refactory_iters_after_collision;
 	}
 }
 
 
 class FoodMap {
-	constructor(tmp_iter, initial_food_n = 7, min_food_n_to_keep = 5, max_food_n = 13) {
+	constructor(tmp_iter, initial_food_n = 10, min_food_n_to_keep = 7, max_food_n = 15) {
 		this.map = []
 		for (var i = 0; i < grid_num; i++) this.map.push(Array(grid_num).fill(0));
 		this.food_l = []
@@ -170,14 +185,17 @@ class Food {
 }
 
 
-var ebi = new Ebi();
-
 const max_bird_n = 9;
 const first_bird_n = 2;
 var bird_l = [];
 for (var i = 0; i < first_bird_n; i++) {
 	bird_l.push(new Bird());
 }
+
+var heart = new Object();
+heart.img = new Image();
+heart.img.src = "img/heart.png"
+
 
 var iter = 1;
 var map = new FoodMap(iter);
@@ -196,11 +214,17 @@ key.left = false;
 key.push = '';
 
 //えびが1ます動くまでgrid_size/ebi.speedだけのイテレーションが必要
-var feeding_freq_iter = grid_size / ebi.speed * 10
+var feeding_freq_iter = grid_size / ebi.speed * 8
 
 var score = 0;
+var life_num = 3;
 
 const food_get_sound = new Audio('sound/papa1.mp3');
+food_get_sound.volume;
+const bird_gotten_sound = new Audio('sound/nyu3.mp3');
+bird_gotten_sound.volume = 0.6;
+const button_pushed_sound = new Audio('sound/puyon1.mp3')
+button_pushed_sound.volume = 0.4;
 
 //メインループ
 function main() {
@@ -209,16 +233,26 @@ function main() {
 	//塗（ぬ）りつぶす
 	ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-	info_ctx.fillStyle = "rgb( 100, 100, 100)";
+	score_ctx.fillStyle = "rgb( 100, 100, 100)";
+	score_ctx.fillRect(0, 0, score_canvas.width, score_canvas.height);
+
+	info_ctx.fillStyle = info_canvas.basecolor;
 	info_ctx.fillRect(0, 0, info_canvas.width, info_canvas.height);
 
 	//画像を表示
+	for (var i = 0; i < life_num; i++) {
+		info_ctx.drawImage(heart.img, 30 * i + 135, 6, heart.img.width * 0.6, heart.img.height * 0.6)
+	}
 
 	for (var i = 0; i < map.food_l.length; i++) {
 		ctx.drawImage(map.food_l[i].img, map.food_l[i].x, map.food_l[i].y);
 	}
 	for (var i = 0; i < bird_l.length; i++) {
-		ctx.drawImage(bird_l[i].img, bird_l[i].x, bird_l[i].y);
+		if (iter - bird_l[i].last_collision_iter > refactory_iters_after_collision) {
+			ctx.drawImage(bird_l[i].img, bird_l[i].x, bird_l[i].y);
+		} else {
+			ctx.drawImage(bird_l[i].clearimg, bird_l[i].x, bird_l[i].y);
+		}
 	}
 	ctx.drawImage(ebi.img, ebi.x, ebi.y);
 
@@ -226,11 +260,11 @@ function main() {
 	addEventListener("keyup", keyupfunc, false);
 
 	//scoreを表示
-	info_ctx.fillStyle = "white";
-	info_ctx.textAlign = "center";
-	info_ctx.textBaseline = "middle";
-	info_ctx.font = "bold 40px sans-serif";
-	info_ctx.fillText(score, info_canvas.width / 2, info_canvas.height / 2);
+	score_ctx.fillStyle = "white";
+	score_ctx.textAlign = "center";
+	score_ctx.textBaseline = "middle";
+	score_ctx.font = "bold 40px sans-serif";
+	score_ctx.fillText(score, score_canvas.width / 2, score_canvas.height / 2);
 
 	//方向キーが押されている場合（ばあい）は、りこちゃんが移動する
 	if (ebi.move === 0) {
@@ -309,18 +343,27 @@ function main() {
 		if (bird_collision_judge) {
 			if (collision_happen(ebi.x, ebi.y, bird_l[i].x, bird_l[i].y)) {
 				collided = true;
-				ctx.fillStyle = "red";
-				ctx.textAlign = "center";
-				ctx.textBaseline = "middle";
-				ctx.font = "bold 60px Arial";
-				ctx.fillText("GameOver", canvas.width / 2, canvas.height / 2 - 20);
-				add_retry_button();
-				break;
+				if (iter - bird_l[i].last_collision_iter > refactory_iters_after_collision) {
+					life_num--;
+					bird_l[i].last_collision_iter = iter;
+					bird_gotten_sound.play();
+				}
+				if (life_num === 0) {
+					info_ctx.fillStyle = info_canvas.basecolor;
+					info_ctx.fillRect(0, 0, info_canvas.width, info_canvas.height);
+					ctx.fillStyle = "red";
+					ctx.textAlign = "center";
+					ctx.textBaseline = "middle";
+					ctx.font = "bold 60px Arial";
+					ctx.fillText("GameOver", canvas.width / 2, canvas.height / 2 - 20);
+					add_retry_button();
+					break;
+				}
 			}
 		}
 
 	}
-	if (collided === false) {
+	if (life_num > 0) {
 		var got_food_index_l = map.get_food_iter(ebi);
 		if (got_food_index_l.length > 0) {
 			var sound = food_get_sound.cloneNode();
@@ -391,10 +434,10 @@ function add_retry_button() {
 	retry_button_shown = true;
 	ctx.fillStyle = "white";
 	ctx.fillRect(rect_pos.x, rect_pos.y, rect_pos.width, rect_pos.height);
-	ctx.strokeStyle = "lightblue";
+	ctx.strokeStyle = "#6ec7ff";
 	ctx.lineWidth = 10;
 	ctx.strokeRect(rect_pos.x, rect_pos.y, rect_pos.width, rect_pos.height);
-	ctx.fillStyle = "lightblue";
+	ctx.fillStyle = "#6ec7ff";
 	ctx.textAlign = "center";
 	ctx.textBaseline = "middle";
 	ctx.font = "bold 20px Arial";
@@ -410,7 +453,9 @@ function retry() {
 	iter = 1;
 	ebi = new Ebi();
 	map = new FoodMap(iter);
-	score = 0
+	score = 0;
+	life_num = 3;
+	button_pushed_sound.play();
 	main();
 }
 
@@ -430,6 +475,7 @@ function add_start_button() {
 
 function start() {
 	start_button_shown = false;
+	button_pushed_sound.play()
 	main();
 }
 

@@ -7,24 +7,30 @@
 </head>
 
 <body>
-	<canvas id="info_canvas" style="vertical-align:middle;"></canvas>
-	<br>
-	<canvas id="canvas" style="vertical-align:middle;"></canvas>
+	<font size="1">
+		<canvas id="score_canvas" style="vertical-align:middle;"></canvas>
+		<br>
+		<canvas id="info_canvas" style="vertical-align:middle;"></canvas>
+		<br>
+		<canvas id="canvas" style="vertical-align:middle;"></canvas>
+		<br>
+	</font>
+
 	<script type="text/javascript" src="js/script.js"></script>
-	<br>
+
 	<p>エビを動かして、えさをできるだけ多く集めてください。</p>
-	<p>鳥に触れてしまったらゲームオーバーです。</p>
+	<p>ライフが0になってしまったらゲームオーバーです。</p>
 	<p>
-		<img src="img/ebi.png" width=50 height=50>
+		<img src="img/ebi.png" width=32 height=32 style="vertical-align:middle;">
 		えびです。上下左右キーで操作します。
 	</p>
 	<p>
-		<img src="img/bird.png" width=50 height=50>
-		鳥です。ぶつかるとゲームオーバーになります。
+		<img src="img/bird.png" width=32 height=32 style="vertical-align:middle;">
+		鳥です。ぶつかるとライフが減ります。
 	</p>
 	<p>
-		<img src="img/plankton_1.png" width=50 height=50>
-		<img src="img/plankton_2.png" width=50 height=50>
+		<img src="img/plankton_1.png" width=32 height=32 style="vertical-align:middle;">
+		<img src="img/plankton_2.png" width=32 height=32 style="vertical-align:middle;">
 		えさです。これを集めると得点になります。一定時間経つと消えてしまいます。
 	</p>
 </body>
