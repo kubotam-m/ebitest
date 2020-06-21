@@ -9,6 +9,7 @@ canvas.width = grid_size * grid_num;//canvasの横幅（よこはば）
 canvas.height = grid_size * grid_num;	//canvasの縦幅（たてはば）
 //コンテキストを取得（しゅとく）
 var ctx = canvas.getContext('2d');
+
 var retry_button_shown = false;
 var start_button_shown = false;
 
@@ -134,6 +135,7 @@ class FoodMap {
 		for (var i = 0; i < this.food_l.length; i++) {
 			if (collision_happen(this.food_l[i].x, this.food_l[i].y, ebi.x, ebi.y)) {
 				gotten_food.push(i)
+				break;
 			}
 		}
 		return gotten_food;
@@ -217,6 +219,7 @@ key.push = '';
 var feeding_freq_iter = grid_size / ebi.speed * 8
 
 var score = 0;
+
 var life_num = 3;
 
 const food_get_sound = new Audio('sound/papa1.mp3');
@@ -362,7 +365,6 @@ function main() {
 		if (got_food_index_l.length > 0) {
 			//var sound = food_get_sound.cloneNode();
 			//sound.play();
-			food_get_sound.pause();
 			food_get_sound.currentTime = 0;
 			food_get_sound.play();
 			score += got_food_index_l.length * 100;
