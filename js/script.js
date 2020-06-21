@@ -221,9 +221,12 @@ var life_num = 3;
 
 const food_get_sound = new Audio('sound/papa1.mp3');
 food_get_sound.volume;
+food_get_sound.preload = "auto;"
 const bird_gotten_sound = new Audio('sound/nyu3.mp3');
 bird_gotten_sound.volume = 0.6;
-const button_pushed_sound = new Audio('sound/puyon1.mp3')
+bird_gotten_sound.preload = "auto;"
+const button_pushed_sound = new Audio('sound/puyon1.mp3');
+button_pushed_sound.preload = "auto;"
 button_pushed_sound.volume = 0.4;
 
 //メインループ
