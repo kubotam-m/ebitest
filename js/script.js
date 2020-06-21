@@ -369,8 +369,11 @@ function main() {
 	if (life_num > 0) {
 		var got_food_index_l = map.get_food_iter(ebi);
 		if (got_food_index_l.length > 0) {
-			var sound = food_get_sound.cloneNode();
-			sound.play();
+			//var sound = food_get_sound.cloneNode();
+			//sound.play();
+			food_get_sound.pause();
+			food_get_sound.currentTime = 0;
+			food_get_sound.play();
 		}
 		score += got_food_index_l.length * 100;
 		map.del_outdated_food();
