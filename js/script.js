@@ -236,17 +236,6 @@ function main() {
 	//塗（ぬ）りつぶす
 	ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-	score_ctx.fillStyle = "rgb( 100, 100, 100)";
-	score_ctx.fillRect(0, 0, score_canvas.width, score_canvas.height);
-
-	info_ctx.fillStyle = info_canvas.basecolor;
-	info_ctx.fillRect(0, 0, info_canvas.width, info_canvas.height);
-
-	//画像を表示
-	for (var i = 0; i < life_num; i++) {
-		info_ctx.drawImage(heart.img, 30 * i + 135, 6, heart.img.width * 0.6, heart.img.height * 0.6)
-	}
-
 	for (var i = 0; i < map.food_l.length; i++) {
 		ctx.drawImage(map.food_l[i].img, map.food_l[i].x, map.food_l[i].y);
 	}
@@ -262,12 +251,6 @@ function main() {
 	addEventListener("keydown", keydownfunc, false);
 	addEventListener("keyup", keyupfunc, false);
 
-	//scoreを表示
-	score_ctx.fillStyle = "white";
-	score_ctx.textAlign = "center";
-	score_ctx.textBaseline = "middle";
-	score_ctx.font = "bold 40px sans-serif";
-	score_ctx.fillText(score, score_canvas.width / 2, score_canvas.height / 2);
 
 	//方向キーが押されている場合（ばあい）は、りこちゃんが移動する
 	if (ebi.move === 0) {
@@ -350,6 +333,14 @@ function main() {
 					life_num--;
 					bird_l[i].last_collision_iter = iter;
 					bird_gotten_sound.play();
+
+					info_ctx.fillStyle = info_canvas.basecolor;
+					info_ctx.fillRect(0, 0, info_canvas.width, info_canvas.height);
+
+					//画像を表示
+					for (var i = 0; i < life_num; i++) {
+						info_ctx.drawImage(heart.img, 30 * i + 135, 6, heart.img.width * 0.6, heart.img.height * 0.6)
+					}
 				}
 				if (life_num === 0) {
 					info_ctx.fillStyle = info_canvas.basecolor;
@@ -374,8 +365,17 @@ function main() {
 			food_get_sound.pause();
 			food_get_sound.currentTime = 0;
 			food_get_sound.play();
+			score += got_food_index_l.length * 100;
+
+			score_ctx.fillStyle = "rgb( 100, 100, 100)";
+			score_ctx.fillRect(0, 0, score_canvas.width, score_canvas.height);
+			//scoreを表示
+			score_ctx.fillStyle = "white";
+			score_ctx.textAlign = "center";
+			score_ctx.textBaseline = "middle";
+			score_ctx.font = "bold 40px sans-serif";
+			score_ctx.fillText(score, score_canvas.width / 2, score_canvas.height / 2);
 		}
-		score += got_food_index_l.length * 100;
 		map.del_outdated_food();
 		if (iter % feeding_freq_iter == 0) map.add_food()
 		map.maintain_min_food_num();
@@ -462,6 +462,23 @@ function retry() {
 	score = 0;
 	life_num = 3;
 	button_pushed_sound.play();
+
+	score_ctx.fillStyle = "rgb( 100, 100, 100)";
+	score_ctx.fillRect(0, 0, score_canvas.width, score_canvas.height);
+	//scoreを表示
+	score_ctx.fillStyle = "white";
+	score_ctx.textAlign = "center";
+	score_ctx.textBaseline = "middle";
+	score_ctx.font = "bold 40px sans-serif";
+	score_ctx.fillText(score, score_canvas.width / 2, score_canvas.height / 2);
+
+	info_ctx.fillStyle = info_canvas.basecolor;
+	info_ctx.fillRect(0, 0, info_canvas.width, info_canvas.height);
+
+	//画像を表示
+	for (var i = 0; i < life_num; i++) {
+		info_ctx.drawImage(heart.img, 30 * i + 135, 6, heart.img.width * 0.6, heart.img.height * 0.6)
+	}
 	main();
 }
 
@@ -481,7 +498,26 @@ function add_start_button() {
 
 function start() {
 	start_button_shown = false;
-	button_pushed_sound.play()
+	button_pushed_sound.play();
+	info_ctx.fillStyle = info_canvas.basecolor;
+	info_ctx.fillRect(0, 0, info_canvas.width, info_canvas.height);
+
+	score_ctx.fillStyle = "rgb( 100, 100, 100)";
+	score_ctx.fillRect(0, 0, score_canvas.width, score_canvas.height);
+	//scoreを表示
+	score_ctx.fillStyle = "white";
+	score_ctx.textAlign = "center";
+	score_ctx.textBaseline = "middle";
+	score_ctx.font = "bold 40px sans-serif";
+	score_ctx.fillText(score, score_canvas.width / 2, score_canvas.height / 2);
+
+	//ハートを表示
+
+	info_ctx.fillStyle = info_canvas.basecolor;
+	info_ctx.fillRect(0, 0, info_canvas.width, info_canvas.height);
+	for (var i = 0; i < life_num; i++) {
+		info_ctx.drawImage(heart.img, 30 * i + 135, 6, heart.img.width * 0.6, heart.img.height * 0.6)
+	}
 	main();
 }
 
