@@ -225,6 +225,10 @@ var life_num = 3;
 const food_get_sound = new Audio('sound/papa1.mp3');
 food_get_sound.volume;
 food_get_sound.preload = "auto;"
+var food_get_sound_l = []
+for (var i = 0; i < 5; i++) {
+	food_get_sound_l.push(food_get_sound.cloneNode());
+}
 const bird_gotten_sound = new Audio('sound/nyu3.mp3');
 bird_gotten_sound.volume = 0.6;
 bird_gotten_sound.preload = "auto;"
@@ -232,6 +236,7 @@ const button_pushed_sound = new Audio('sound/puyon1.mp3');
 button_pushed_sound.preload = "auto;"
 button_pushed_sound.volume = 0.4;
 
+var sound_index = 0;
 //メインループ
 function main() {
 	//塗（ぬ）りつぶす色を指定（してい）
@@ -365,8 +370,9 @@ function main() {
 		if (got_food_index_l.length > 0) {
 			//var sound = food_get_sound.cloneNode();
 			//sound.play();
-			food_get_sound.currentTime = 0;
-			food_get_sound.play();
+			//food_get_sound_l[sound_index].currentTime = 0;
+			food_get_sound_l[sound_index].play();
+			sound_index = (sound_index + 1) % food_get_sound_l.length;
 			score += got_food_index_l.length * 100;
 
 			score_ctx.fillStyle = "rgb( 100, 100, 100)";
