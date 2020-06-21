@@ -1,0 +1,23 @@
+p{font-size:17px;
+color:whitesmoke;}
+
+body {
+  background-color:rgb(27, 30, 39);
+}
+
+.div_canvas{
+    width: 352px;
+    margin:0px;
+    padding:15px;
+    border:10px;
+    background: grey;
+    display:inline-block;
+    overflow:hidden;
+}
+
+.canvas_wrapper{
+    width: 400px; 
+    margin: 0 auto;  
+    text-align: center;
+    align-content: center; 
+}
