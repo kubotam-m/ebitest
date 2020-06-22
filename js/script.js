@@ -572,54 +572,58 @@ var color_keymap = {
 }
 
 function convert_color_to_key(color) {
-	for (key in color_keymap) {
+	for (key_dir in color_keymap) {
 		var color_identical = true;
 		for (var i = 0; i < 4; i++) {
-			if (color_keymap[key][i] != color[i]) {
+			if (color_keymap[key_dir][i] != color[i]) {
 				color_identical = false;
 				break;
 			}
 		}
-		if (color_identical === true) return key
-	}
+		if (color_identical === true) return key_dir
+	} return null
 }
 
-//if (!("ontouchend" in document)) {
-if (("ontouchend" in document)) {
+if (!("ontouchend" in document)) {
 	document.getElementById("mobile_area").style.display = "none";
 }
 
-function keydownfunc(event) {
-	var key_code = event.keyCode;
-	if (key_code === 37) key.left = true;
-	if (key_code === 38) key.up = true;
-	if (key_code === 39) key.right = true;
-	if (key_code === 40) key.down = true;
-	event.preventDefault();
-}
-
-//キーボードが放（はな）されたときに呼び出される関数
-function keyupfunc(event) {
-	var key_code = event.keyCode;
-	if (key_code === 37) key.left = false;
-	if (key_code === 38) key.up = false;
-	if (key_code === 39) key.right = false;
-	if (key_code === 40) key.down = false;
-}
-
 controller_upper_img.addEventListener("mousedown", function (evt) {
+	key.up = false;
+	key.up = false;
+	key.right = false;
+	key.down = false;
 	var mousePos = getMousePos(controller_canvas, evt);
 	var pixel_color = controller_ctx.getImageData(mousePos.x, mousePos.y,
 		1, 1).data;
-	console.log(convert_color_to_key(pixel_color));
 	var pushed_controller_dir = convert_color_to_key(pixel_color);
-	alert("mousedown")
+	if (pushed_controller_dir === null) return;
+	switch (pushed_controller_dir) {
+		case "left":
+			key.left = true;
+			break;
+		case "up":
+			key.up = true;
+			break;
+		case "right":
+			key.right = true;
+			break;
+		case "down":
+			key.down = true;
+			break;
+	}
 }, false);
 
 controller_upper_img.addEventListener("mouseup", function (evt) {
-	var mousePos = getMousePos(controller_canvas, evt);
-	var pixel_color = controller_ctx.getImageData(mousePos.x, mousePos.y,
-		1, 1).data;
-	console.log(convert_color_to_key(pixel_color));
-	var pushed_controller_dir = convert_color_to_key(pixel_color);
+	key.left = false;
+	key.up = false;
+	key.right = false;
+	key.down = false;
+}, false);
+
+controller_upper_img.addEventListener("mouseout", function (evt) {
+	key.left = false;
+	key.up = false;
+	key.right = false;
+	key.down = false;
 }, false);
