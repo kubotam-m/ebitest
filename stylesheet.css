@@ -21,3 +21,13 @@ body {
     text-align: center;
     align-content: center; 
 }
+
+.relative {
+    position: relative;
+    width:352px;
+}
+.absolute {
+    position: absolute;
+    left:0px;
+    top:0px;
+}

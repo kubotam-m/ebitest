@@ -26,6 +26,20 @@ info_canvas.height = 30;
 info_ctx = info_canvas.getContext("2d");
 info_canvas.basecolor = "rgb( 248, 248, 256)";
 
+var controller_upper_img = document.getElementById("controller_img");
+
+var controller_canvas = document.getElementById("controller_color")
+controller_canvas.width = canvas.width;
+controller_canvas.height = 150;
+var controller_color_img = new Image();
+controller_color_img.src = "working_folder/parts_colored.png"
+var controller_ctx = controller_canvas.getContext("2d");
+
+controller_color_img.onload = function () {
+	controller_ctx.drawImage(controller_color_img, 0, 0);
+}
+
+
 var rect_pos = {
 	x: canvas.width * 0.3,
 	y: canvas.height * 0.6,
@@ -548,4 +562,64 @@ canvas.addEventListener('click', function (evt) {
 	if (start_button_shown && isInside(mousePos, rect_pos)) {
 		start();
 	}
+}, false);
+
+var color_keymap = {
+	left: [13, 13, 13, 255],
+	right: [0, 255, 0, 255],
+	up: [255, 0, 0, 255],
+	down: [0, 2, 255, 255]
+}
+
+function convert_color_to_key(color) {
+	for (key in color_keymap) {
+		var color_identical = true;
+		for (var i = 0; i < 4; i++) {
+			if (color_keymap[key][i] != color[i]) {
+				color_identical = false;
+				break;
+			}
+		}
+		if (color_identical === true) return key
+	}
+}
+
+//if (!("ontouchend" in document)) {
+if (("ontouchend" in document)) {
+	document.getElementById("mobile_area").style.display = "none";
+}
+
+function keydownfunc(event) {
+	var key_code = event.keyCode;
+	if (key_code === 37) key.left = true;
+	if (key_code === 38) key.up = true;
+	if (key_code === 39) key.right = true;
+	if (key_code === 40) key.down = true;
+	event.preventDefault();
+}
+
+//キーボードが放（はな）されたときに呼び出される関数
+function keyupfunc(event) {
+	var key_code = event.keyCode;
+	if (key_code === 37) key.left = false;
+	if (key_code === 38) key.up = false;
+	if (key_code === 39) key.right = false;
+	if (key_code === 40) key.down = false;
+}
+
+controller_upper_img.addEventListener("mousedown", function (evt) {
+	var mousePos = getMousePos(controller_canvas, evt);
+	var pixel_color = controller_ctx.getImageData(mousePos.x, mousePos.y,
+		1, 1).data;
+	console.log(convert_color_to_key(pixel_color));
+	var pushed_controller_dir = convert_color_to_key(pixel_color);
+	alert("mousedown")
+}, false);
+
+controller_upper_img.addEventListener("mouseup", function (evt) {
+	var mousePos = getMousePos(controller_canvas, evt);
+	var pixel_color = controller_ctx.getImageData(mousePos.x, mousePos.y,
+		1, 1).data;
+	console.log(convert_color_to_key(pixel_color));
+	var pushed_controller_dir = convert_color_to_key(pixel_color);
 }, false);
