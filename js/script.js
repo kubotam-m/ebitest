@@ -26,7 +26,17 @@ info_canvas.height = 30;
 info_ctx = info_canvas.getContext("2d");
 info_canvas.basecolor = "rgb( 248, 248, 256)";
 
-var controller_upper_img = document.getElementById("controller_img");
+var controller_upper_canvas = document.getElementById("controller_cover");
+controller_upper_canvas.width = canvas.width;
+controller_upper_canvas.height = 150;
+var controller_upper_img = new Image();
+controller_upper_img.src = "img/parts_black.png"
+var controller_upper_ctx = controller_upper_canvas.getContext("2d");
+
+controller_upper_img.onload = function () {
+	controller_upper_ctx.drawImage(controller_upper_img, 0, 0);
+}
+
 
 var controller_canvas = document.getElementById("controller_color")
 controller_canvas.width = canvas.width;
@@ -584,11 +594,12 @@ function convert_color_to_key(color) {
 	} return null
 }
 
-if (!("ontouchend" in document)) {
+if (("ontouchend" in document)) {
+	//if (!("ontouchend" in document)) {
 	document.getElementById("mobile_area").style.display = "none";
 }
 
-controller_upper_img.addEventListener("mousedown", function (evt) {
+controller_upper_canvas.addEventListener("mousedown", function (evt) {
 	key.up = false;
 	key.up = false;
 	key.right = false;
@@ -614,14 +625,14 @@ controller_upper_img.addEventListener("mousedown", function (evt) {
 	}
 }, false);
 
-controller_upper_img.addEventListener("mouseup", function (evt) {
+controller_upper_canvas.addEventListener("mouseup", function (evt) {
 	key.left = false;
 	key.up = false;
 	key.right = false;
 	key.down = false;
 }, false);
 
-controller_upper_img.addEventListener("mouseout", function (evt) {
+controller_upper_canvas.addEventListener("mouseout", function (evt) {
 	key.left = false;
 	key.up = false;
 	key.right = false;
