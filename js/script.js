@@ -594,8 +594,8 @@ function convert_color_to_key(color) {
 	} return null
 }
 
-if (("ontouchend" in document)) {
-	//if (!("ontouchend" in document)) {
+//if (("ontouchend" in document)) {
+if (!("ontouchend" in document)) {
 	document.getElementById("mobile_area").style.display = "none";
 }
 
