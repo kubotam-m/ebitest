@@ -81,16 +81,20 @@ class FoodMap {
 		this.map = []
 		for (var i = 0; i < grid_num; i++) this.map.push(Array(grid_num).fill(0));
 		this.food_l = []
-		for (var i = 0; i < initial_food_n; i++) this.add_food(tmp_iter)
+		for (var i = 0; i < initial_food_n; i++) this.add_food(tmp_iter, true)
 		this.min_food_n_to_keep = min_food_n_to_keep
 		this.max_food_n = max_food_n
 	}
 
-	_select_grid() {
+	_select_grid(initial_state = false) {
 		var x_cand, y_cand;
 		do {
 			x_cand = Math.floor(Math.random() * grid_num);
 			y_cand = Math.floor(Math.random() * grid_num);
+			while (initial_state === true && x_cand === 0 && y_cand === 0) {
+				x_cand = Math.floor(Math.random() * grid_num);
+				y_cand = Math.floor(Math.random() * grid_num);
+			}
 		} while (this.map[x_cand][y_cand] == 1)
 		return [x_cand, y_cand]
 	}
@@ -99,9 +103,9 @@ class FoodMap {
 		return this.food_l.length
 	}
 
-	add_food(tmp_iter = iter) {
+	add_food(tmp_iter = iter, initial_state = false) {
 		if (this.get_food_n() >= this.max_food_n) return;
-		var grid_coordinate = this._select_grid()
+		var grid_coordinate = this._select_grid(initial_state = initial_state)
 		var x = grid_coordinate[0]
 		var y = grid_coordinate[1]
 		this.map[x][y] = 1

@@ -1,0 +1,11 @@
+{
+	"folders": [
+		{
+			"name": "ebimove",
+			"path": "."
+		},
+		{
+			"path": "../ebimove_mobile"
+		}
+	]
+}
