@@ -594,12 +594,38 @@ function convert_color_to_key(color) {
 	} return null
 }
 
-//if (("ontouchend" in document)) {
-if (!("ontouchend" in document)) {
+//if (!("ontouchend" in document)) {
+if (("ontouchend" in document)) {
 	document.getElementById("mobile_area").style.display = "none";
 }
 
 controller_upper_canvas.addEventListener("mousedown", function (evt) {
+	key.up = false;
+	key.up = false;
+	key.right = false;
+	key.down = false;
+	var mousePos = getMousePos(controller_canvas, evt);
+	var pixel_color = controller_ctx.getImageData(mousePos.x, mousePos.y,
+		1, 1).data;
+	var pushed_controller_dir = convert_color_to_key(pixel_color);
+	if (pushed_controller_dir === null) return;
+	switch (pushed_controller_dir) {
+		case "left":
+			key.left = true;
+			break;
+		case "up":
+			key.up = true;
+			break;
+		case "right":
+			key.right = true;
+			break;
+		case "down":
+			key.down = true;
+			break;
+	}
+}, false);
+
+controller_upper_canvas.addEventListener("touchstart", function (evt) {
 	key.up = false;
 	key.up = false;
 	key.right = false;
