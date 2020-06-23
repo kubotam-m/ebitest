@@ -3,6 +3,13 @@ color:whitesmoke;}
 
 body {
   background-color:rgb(27, 30, 39);
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  -webkit-touch-action: none;
+  -ms-touch-action: none;
+  touch-action: manipulation;
 }
 
 .div_canvas{
@@ -13,10 +20,6 @@ body {
     background: grey;
     display:inline-block;
     overflow:hidden;
-    -webkit-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
-    user-select: none;
 }
 
 .canvas_wrapper{
@@ -25,6 +28,11 @@ body {
     text-align: center;
     align-content: center; 
     user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    touch-action: none;
 }
 
 .relative {

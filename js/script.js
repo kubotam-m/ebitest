@@ -1,3 +1,6 @@
+document.documentElement.addEventListener('touchend', function (e) { }, false);
+document.documentElement.addEventListener('touchstart', function (e) { }, false);
+
 var bird_collision_judge = true
 
 //canvasの設定（せってい）
@@ -32,6 +35,9 @@ controller_upper_canvas.height = 150;
 var controller_upper_img = new Image();
 controller_upper_img.src = "img/parts_black.png"
 var controller_upper_ctx = controller_upper_canvas.getContext("2d");
+controller_upper_ctx.fillStyle = "grey";
+controller_upper_ctx.fillRect(0, 0,
+	controller_upper_canvas.width, controller_upper_canvas.height);
 
 controller_upper_img.onload = function () {
 	controller_upper_ctx.drawImage(controller_upper_img, 0, 0);
@@ -42,7 +48,7 @@ var controller_canvas = document.getElementById("controller_color")
 controller_canvas.width = canvas.width;
 controller_canvas.height = 150;
 var controller_color_img = new Image();
-controller_color_img.src = "working_folder/parts_colored.png"
+controller_color_img.src = "img/parts_widecolored.png"
 var controller_ctx = controller_canvas.getContext("2d");
 
 controller_color_img.onload = function () {
@@ -57,14 +63,14 @@ var rect_pos = {
 	height: canvas.height * 0.2
 };
 
-ctx.fillStyle = "rgb( 0, 0, 0 )";
+ctx.fillStyle = "rgb( 50, 50, 100 )";
 //塗（ぬ）りつぶす
 ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-score_ctx.fillStyle = "rgb( 0, 0, 0)";
+score_ctx.fillStyle = "rgb( 50, 50, 100 )";
 score_ctx.fillRect(0, 0, score_canvas.width, score_canvas.height);
 
-info_ctx.fillStyle = "rgb( 0, 0, 0)";
+info_ctx.fillStyle = "rgb( 50, 50, 100 )";
 info_ctx.fillRect(0, 0, info_canvas.width, info_canvas.height);
 
 class Ebi {
@@ -268,7 +274,7 @@ var sound_index = 0;
 //メインループ
 function main() {
 	//塗（ぬ）りつぶす色を指定（してい）
-	ctx.fillStyle = "rgb( 0, 0, 0 )";
+	ctx.fillStyle = "rgb( 50, 50, 100 ) ";
 	//塗（ぬ）りつぶす
 	ctx.fillRect(0, 0, canvas.width, canvas.height);
 
@@ -591,12 +597,13 @@ function convert_color_to_key(color) {
 			}
 		}
 		if (color_identical === true) return key_dir
-	} return null
+	}
+	console.log("no color")
+	return null
 }
 
-//if (!("ontouchend" in document)) {
-//if (("ontouchend" in document)) {
-if (false) {
+if (!("ontouchend" in document)) {
+	//if (false) {
 	document.getElementById("mobile_area").style.display = "none";
 }
 
@@ -604,8 +611,8 @@ if (false) {
 function getTouchedPos(canvas, event) {
 	var rect = canvas.getBoundingClientRect();
 	return {
-		x: event.targetTouches[0].pageX - rect.left,
-		y: event.targetTouches[0].pageY - rect.top
+		x: event.targetTouches[0].pageX - rect.left - window.scrollX,
+		y: event.targetTouches[0].pageY - rect.top - window.scrollY
 	};
 }
 
