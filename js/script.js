@@ -1,5 +1,11 @@
-document.documentElement.addEventListener('touchend', function (e) { }, false);
-document.documentElement.addEventListener('touchstart', function (e) { }, false);
+let lastTouchEndTime = 0;
+document.addEventListener('touchend', function (event) {
+	const now = new Date().getTime();
+	if ((now - lastTouchEndTime) < 350) {
+		event.preventDefault();
+	}
+	lastTouchEndTime = now;
+});
 
 var bird_collision_judge = true
 
@@ -647,6 +653,11 @@ controller_upper_canvas.addEventListener("touchend", function (evt) {
 	key.up = false;
 	key.right = false;
 	key.down = false;
+	const now = new Date().getTime();
+	if ((now - lastTouchEndTime) < 350) {
+		event.preventDefault();
+	}
+	lastTouchEndTime = now;
 }, false);
 
 controller_upper_canvas.addEventListener("mouseout", function (evt) {

@@ -7,9 +7,6 @@ body {
   -moz-user-select: none;
   -ms-user-select: none;
   user-select: none;
-  -webkit-touch-action: none;
-  -ms-touch-action: none;
-  touch-action: manipulation;
 }
 
 .div_canvas{
@@ -27,12 +24,6 @@ body {
     margin: 0 auto;  
     text-align: center;
     align-content: center; 
-    user-select: none;
-    -webkit-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
-    user-select: none;
-    touch-action: none;
 }
 
 .relative {
